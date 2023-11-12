@@ -1,0 +1,647 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "private_outputs": true,
+      "provenance": [],
+      "gpuType": "T4",
+      "authorship_tag": "ABX9TyOWgome+vECbEPtWJR7IXmN",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    },
+    "accelerator": "GPU"
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/gayratqurbonov/datasets/blob/main/audio\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "1337mnMGjksG"
+      },
+      "outputs": [],
+      "source": [
+        "!pip install datasets"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import glob\n",
+        "import os\n",
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "import shutil\n",
+        "import librosa\n",
+        "from tqdm import tqdm"
+      ],
+      "metadata": {
+        "id": "5NVDEFQdjmAp"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from huggingface_hub import login\n",
+        "login(token=\"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\")"
+      ],
+      "metadata": {
+        "id": "5IrmkvHQjn62"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from datasets import load_dataset\n",
+        "\n",
+        "dataset = load_dataset('mozilla-foundation/common_voice_13_0', 'uz', split='train+validation')"
+      ],
+      "metadata": {
+        "id": "EOhlirBfj1pB"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df = dataset.to_pandas()"
+      ],
+      "metadata": {
+        "id": "DGp1jCTQj4vT"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df"
+      ],
+      "metadata": {
+        "id": "qBRgcxmlj8QR"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd"
+      ],
+      "metadata": {
+        "id": "8QIqMM_lj9tY"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "new_df = pd.DataFrame(columns=['path', 'gender'])"
+      ],
+      "metadata": {
+        "id": "c2GwzkJ7kAKa"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "new_df = df[['path','gender']]"
+      ],
+      "metadata": {
+        "id": "1BrrnFJukDhQ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "new_df"
+      ],
+      "metadata": {
+        "id": "aCljoAN3kFNo"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#drop if gender is not equal to male or not equal to female\n",
+        "new_df = new_df[(new_df['gender']=='male') | (new_df['gender']=='female' )]"
+      ],
+      "metadata": {
+        "id": "GTIIl_jlkHwA"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "new_df.shape"
+      ],
+      "metadata": {
+        "id": "z7FR_FKOkJh6"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "male = new_df[new_df['gender']=='male']"
+      ],
+      "metadata": {
+        "id": "xRi8tr-rkKeE"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "female = new_df[new_df['gender']=='female']"
+      ],
+      "metadata": {
+        "id": "bYM4BwvwkMQA"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "male.shape"
+      ],
+      "metadata": {
+        "id": "Vffi04N3kO5i"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "female.shape"
+      ],
+      "metadata": {
+        "id": "foM75o0AkRWQ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "male = male.iloc[0:12000]"
+      ],
+      "metadata": {
+        "id": "eD-ILBHxkTgq"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "female = female.append(male)"
+      ],
+      "metadata": {
+        "id": "kHPrPPRckT_I"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "female"
+      ],
+      "metadata": {
+        "id": "eBXyaFiskWmQ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#shuffle the dataframe\n",
+        "female = female.sample(frac=1).reset_index(drop=True)"
+      ],
+      "metadata": {
+        "id": "-XepoXwUkZTx"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "female"
+      ],
+      "metadata": {
+        "id": "EhtruAVqkZ84"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "female.iloc[0].path"
+      ],
+      "metadata": {
+        "id": "HNCD3osYkc0w"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def extract_feature(file_name):\n",
+        "    X, sample_rate = librosa.core.load(file_name)\n",
+        "    result = np.array([])\n",
+        "    mel = np.mean(librosa.feature.melspectrogram(y = X, sr=sample_rate).T,axis=0)\n",
+        "    result = np.hstack((result, mel))\n",
+        "\n",
+        "    return result"
+      ],
+      "metadata": {
+        "id": "RQ_VCAbSkdpy"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "dirname = \"data\""
+      ],
+      "metadata": {
+        "id": "R8F7cVpDkhTr"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "if not os.path.isdir(dirname):\n",
+        "    os.mkdir(dirname)"
+      ],
+      "metadata": {
+        "id": "iZ-gD-dHki6R"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#save to csv file\n",
+        "female.to_csv(\"common_voice_uz.csv\", index=False)"
+      ],
+      "metadata": {
+        "id": "TnrhuoGqkkrI"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "folder_name = \"/root/.cache/huggingface/datasets/downloads/extracted/fbd7acc8601b294a139eddae148d842e1e608fedb3f908e9ffa20843ace27515/uz_train_0/\"\n",
+        "audio_files = glob.glob(f\"{folder_name}*\")\n",
+        "all_audio_filenames = set(female[\"path\"])"
+      ],
+      "metadata": {
+        "id": "sCSRD3y9klvo"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "len(all_audio_filenames)"
+      ],
+      "metadata": {
+        "id": "aMKZw6_Ikn_r"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "for i, audio_file in tqdm(list(enumerate(audio_files)), f\"Extracting features of {folder_name}\"):\n",
+        "    splited = os.path.split(audio_file)\n",
+        "    # audio_filename = os.path.join(os.path.split(splited[0])[-1], splited[-1])\n",
+        "    audio_filename = f\"{os.path.split(splited[0])[-1]}/{splited[-1]}\"\n",
+        "    # print(\"audio_filename:\", audio_filename)\n",
+        "    audio_filename = audio_filename.split(\"/\")[-1]\n",
+        "\n",
+        "    # print(\"Copyying\", audio_filename, \"...\")\n",
+        "    src_path = f\"{folder_name}/{audio_filename}\"\n",
+        "    target_path = f\"{dirname}/{audio_filename}\"\n",
+        "    #create that folder if it doesn't exist\n",
+        "    if not os.path.isdir(os.path.dirname(target_path)):\n",
+        "        os.mkdir(os.path.dirname(target_path))\n",
+        "    features = extract_feature(src_path)\n",
+        "    target_filename = target_path.split(\".\")[0]\n",
+        "    np.save(target_filename, features)"
+      ],
+      "metadata": {
+        "id": "FkwyNXtYkp5k"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!unzip results.zip"
+      ],
+      "metadata": {
+        "id": "GxIYzIaNktyj"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def load_data(vector_length=128):\n",
+        "\n",
+        "\n",
+        "    if not os.path.isdir(\"results\"):\n",
+        "        print(\"Results directory not found, please run the preprocessing script first.\")\n",
+        "        return None, None\n",
+        "\n",
+        "    # if features & labels already loaded individually and bundled, load them from there instead\n",
+        "    if os.path.isfile(\"results/features.npy\") and os.path.isfile(\"results/labels.npy\"):\n",
+        "        X = np.load(\"results/features.npy\")\n",
+        "        y = np.load(\"results/labels.npy\")\n",
+        "        return X, y"
+      ],
+      "metadata": {
+        "id": "ZHdTLaAnpEc-"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "X, y = load_data()"
+      ],
+      "metadata": {
+        "id": "JXWtEjZdw9ZK"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "len(X)"
+      ],
+      "metadata": {
+        "id": "XRpONuMuw92d"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.model_selection import train_test_split\n",
+        "def split_data(X, y, test_size=0.1, valid_size=0.1):\n",
+        "    # split training set and testing set\n",
+        "    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=7)\n",
+        "    # split training set and validation set\n",
+        "    X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=valid_size, random_state=7)\n",
+        "    # return a dictionary of values\n",
+        "    return {\n",
+        "        \"X_train\": X_train,\n",
+        "        \"X_valid\": X_valid,\n",
+        "        \"X_test\": X_test,\n",
+        "        \"y_train\": y_train,\n",
+        "        \"y_valid\": y_valid,\n",
+        "        \"y_test\": y_test\n",
+        "    }"
+      ],
+      "metadata": {
+        "id": "7hGrGAKWw_mp"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data = split_data(X, y, test_size=0.1, valid_size=0.1)"
+      ],
+      "metadata": {
+        "id": "jMqevd42xLyY"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data"
+      ],
+      "metadata": {
+        "id": "gwtQk3nXxtfZ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from tensorflow.keras.models import Sequential\n",
+        "from tensorflow.keras.layers import Dense, LSTM, Dropout"
+      ],
+      "metadata": {
+        "id": "e0gKJzmXxvEs"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model = Sequential()\n",
+        "model.add(Dense(256, input_shape=(128,)))\n",
+        "model.add(Dropout(0.3))\n",
+        "model.add(Dense(256, activation=\"relu\"))\n",
+        "model.add(Dropout(0.3))\n",
+        "model.add(Dense(128, activation=\"relu\"))\n",
+        "model.add(Dropout(0.3))\n",
+        "model.add(Dense(128, activation=\"relu\"))\n",
+        "model.add(Dropout(0.3))\n",
+        "model.add(Dense(64, activation=\"relu\"))\n",
+        "model.add(Dropout(0.3))\n",
+        "# one output neuron with sigmoid activation function, 0 means female, 1 means male\n",
+        "model.add(Dense(1, activation=\"sigmoid\"))\n",
+        "# using binary crossentropy as it's male/female classification (binary)\n",
+        "model.compile(loss=\"binary_crossentropy\", metrics=[\"accuracy\"], optimizer=\"adam\")\n",
+        "# print summary of the model\n",
+        "model.summary()"
+      ],
+      "metadata": {
+        "id": "TR6ofO0Uxxo0"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "batch_size = 64\n",
+        "epochs = 100"
+      ],
+      "metadata": {
+        "id": "E3sGYWBGx0pE"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from tensorflow.keras.callbacks import EarlyStopping"
+      ],
+      "metadata": {
+        "id": "1B07HTaryvJf"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# early_stopping = EarlyStopping(mode=\"min\", patience=5, restore_best_weights=True)"
+      ],
+      "metadata": {
+        "id": "37aRMEXAyw3g"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model.fit(data[\"X_train\"], data[\"y_train\"], epochs=epochs, batch_size=batch_size, validation_data=(data[\"X_valid\"], data[\"y_valid\"]))\n"
+      ],
+      "metadata": {
+        "id": "RVAg32biyyks"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model.save(\"results/model.h5\")"
+      ],
+      "metadata": {
+        "id": "GC1WNbBwy0QK"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install gradio"
+      ],
+      "metadata": {
+        "id": "MXJGzch8B75d"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import json\n",
+        "import time\n",
+        "def classify_gender(file1,file2):\n",
+        "\n",
+        "    file = file1 if file1 else file2\n",
+        "\n",
+        "    #get audio length\n",
+        "    audio_length = librosa.get_duration(filename=file)\n",
+        "\n",
+        "    start = time.time()\n",
+        "    features = extract_feature(file, mel=True).reshape(1, -1)\n",
+        "    male_prob = model.predict(features)[0][0]\n",
+        "    female_prob = 1 - male_prob\n",
+        "    gender = \"male\" if male_prob > female_prob else \"female\"\n",
+        "    text = f\"Result: Probabilities:     Male: {male_prob*100:.2f}%    Female: {female_prob*100:.2f}%\"\n",
+        "    end = time.time()\n",
+        "    final_time = end - start\n",
+        "\n",
+        "    result = {\n",
+        "        \"gender\": gender,\n",
+        "        \"male_probability\": f\"{male_prob*100:.2f}%\",\n",
+        "        \"female_probability\": f\"{female_prob*100:.2f}%\",\n",
+        "        \"Time taken\": f\"{final_time:.2f} seconds\",\n",
+        "        \"Audio length\": f\"{audio_length:.2f} seconds\",\n",
+        "    }\n",
+        "\n",
+        "\n",
+        "    return json.dumps(result)"
+      ],
+      "metadata": {
+        "id": "aMJ-bbbqCjl8"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import gradio as gr\n",
+        "demo = gr.Interface(fn=classify_gender, inputs=[gr.Audio(source=\"upload\",type=\"filepath\"),gr.Audio(source=\"microphone\",type=\"filepath\")], outputs=\"json\")\n",
+        "demo.launch(share=True)"
+      ],
+      "metadata": {
+        "id": "2R4NzZeQDwJv"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
